@@ -5,13 +5,13 @@ FROM sismics/docs:v1.12@sha256:29ce750d44fd7de8ab995d77aa2bb50978f4ba0862e6aa827
 # Two tiny helpers, compiled against the libraries Teedy itself ships in its WAR:
 # - HashPassword turns ADMIN_PASSWORD into the bcrypt hash Teedy expects in DOCS_ADMIN_PASSWORD_INIT;
 # - OcrGuard turns OCR off on services with less than 900 MB of RAM (and back on above it).
-# The http-forwarded module makes Jetty trust Railway's X-Forwarded-* headers (https links).
+# The forwarded module makes Jetty trust Railway's X-Forwarded-* headers (https links).
 COPY HashPassword.java OcrGuard.java /opt/railway/
 RUN mkdir -p /opt/railway/lib \
  && cd /opt/railway/lib \
  && unzip -q -j /app/webapps/docs.war 'WEB-INF/lib/bcrypt-*.jar' 'WEB-INF/lib/bytes-*.jar' 'WEB-INF/lib/postgresql-*.jar' \
  && javac -d /opt/railway -cp '/opt/railway/lib/*' /opt/railway/HashPassword.java /opt/railway/OcrGuard.java \
- && cd /app && java -jar /opt/jetty/start.jar --add-modules=http-forwarded >/dev/null
+ && cd /app && java -jar /opt/jetty/start.jar --add-modules=forwarded >/dev/null
 
 # Upstream fix carried by this template (see patch/README.md): background file processing
 # ignored the "OCR enabled" setting. The patched ConfigUtil goes into the WAR's WEB-INF/classes,

@@ -60,7 +60,9 @@ if [ -n "${DATABASE_URL:-}" ]; then
     sleep 2
   done
 fi
-export DATABASE_POOL_SIZE="${DATABASE_POOL_SIZE:-5}"
+# Hibernate's built-in pool fails a request at once when it is exhausted (no waiting), so keep
+# it above the number of parallel requests (upstream default 10). Connections open on demand.
+export DATABASE_POOL_SIZE="${DATABASE_POOL_SIZE:-20}"
 
 # --- public URL used in e-mails and share links ---
 if [ -z "${DOCS_BASE_URL:-}" ] && [ -n "${RAILWAY_PUBLIC_DOMAIN:-}" ]; then
