@@ -35,7 +35,10 @@ if [ -n "${TEEDY_HEAP_MB:-}" ]; then
 elif [ "$mem_mb" -le 0 ] || [ "$mem_mb" -ge 4096 ]; then
   heap=1024                       # upstream's own default (-Xmx1g)
 else
-  heap=$(( mem_mb * 40 / 100 ))   # leave room for metaspace, code, malloc and the tesseract/ffmpeg processes
+  # OCR renders each scanned page at 300 DPI and upscales it to 3500 px in the Java heap, on two
+  # threads at once (about 250 MB of heap per page), and runs tesseract (about 60 MB) next to it.
+  # The rest (metaspace, code, malloc) is about 150 MB.
+  heap=$(( mem_mb * 58 / 100 ))
   # Under 900 MB OCR is switched off (see below), so the heap can take half of the memory.
   [ "$mem_mb" -lt 900 ] && heap=$(( mem_mb / 2 ))
   [ "$heap" -lt 160 ] && heap=160
